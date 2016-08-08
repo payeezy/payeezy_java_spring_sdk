@@ -48,20 +48,31 @@ public class PayeezyClientHelper {
 				String url= map.get("url");
 	            payeezyClient = new PayeezyClient(requestOptions, url);
         	} else {
-        		throw new ApplicationRuntimeException("Can't find Payeezy service information in VCAP_SERVICES");
+                if(env == null){
+                    throw  new ApplicationRuntimeException("Application properties not found");
+                }
+                String url = env.getProperty("url");
+                payeezyClient = new PayeezyClient(getClientOptions(env), url);
         	}
         } else {
             if(env == null){
                 throw  new ApplicationRuntimeException("Application properties not found");
             }
-        	String key = env.getProperty("apikey");
-        	String secret = env.getProperty("pzsecret");
-        	String token = env.getProperty("token");
         	String url = env.getProperty("url");
-        	String proxyHost = env.getProperty("proxyHost");
-        	String proxyPort = env.getProperty("proxyPort");
-        	payeezyClient = new PayeezyClient(new PayeezyRequestOptions(key, token, secret, proxyHost, proxyPort), url);
+        	payeezyClient = new PayeezyClient(getClientOptions(env), url);
         }
+    }
+
+
+    private PayeezyRequestOptions getClientOptions(Environment env){
+        String key = env.getProperty("apikey");
+        String secret = env.getProperty("pzsecret");
+        String token = env.getProperty("token");
+        String url = env.getProperty("url");
+        String proxyHost = env.getProperty("proxyHost");
+        String proxyPort = env.getProperty("proxyPort");
+        return new PayeezyRequestOptions(key, token, secret, proxyHost, proxyPort);
+
     }
 
     /**

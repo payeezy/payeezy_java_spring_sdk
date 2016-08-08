@@ -42,12 +42,19 @@ public class PayeezyClient {
 		this.restTemplate.setInterceptors(interceptors);
 		this.transactionsUrl = transactionsUrl;
 		String url;
-		if (this.transactionsUrl.endsWith(APIResourceConstants.PRIMARY_TRANSACTIONS)) {
+
+		if(!transactionsUrl.startsWith("https://")){
+			int index = transactionsUrl.indexOf("api");
+			if(index != -1){
+				transactionsUrl = transactionsUrl.substring(index);
+			}
+			transactionsUrl = "https://"+transactionsUrl;
+		}
+		if (transactionsUrl.endsWith(APIResourceConstants.PRIMARY_TRANSACTIONS)) {
 			url = transactionsUrl;
 		} else {
 			url = transactionsUrl + APIResourceConstants.PRIMARY_TRANSACTIONS;
 		}
-		
 		logger.info("Transaction URL: " + url);
 		//logger.info("Secondary transaction URL: " + this.secondaryTransactionUrl);
 		this.secondaryTransactionUrl = url + "/{id}";
