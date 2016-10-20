@@ -154,8 +154,9 @@ public class TransactionRequest {
 	@JsonProperty("user_name")
 	private String userName;
 
-	@JsonIgnore
-	private boolean internalTransaction;
+	@JsonProperty("connect_pay")
+	private ConnectPay connectPay;
+
 
 	public String getTransactionType() {
 		return (transactionType != null ? transactionType.toLowerCase() : null);
@@ -464,19 +465,13 @@ public class TransactionRequest {
 	public void setReversalId(String reversalId) {
 		this.reversalId = reversalId;
 	}
+
 	public OriginalDetails getOriginalDetails() {
 		return originalDetails;
 	}
+
 	public void setOriginalDetails(OriginalDetails originalDetails) {
 		this.originalDetails = originalDetails;
-	}
-
-	public boolean isInternalTransaction() {
-		return internalTransaction;
-	}
-
-	public void setInternalTransaction(boolean internalTransacion) {
-		this.internalTransaction = internalTransacion;
 	}
 
 	public String getPostDate() {
@@ -541,5 +536,13 @@ public class TransactionRequest {
 
 	public void setBin(String bin) {
 		this.bin = bin;
+	}
+
+	public ConnectPay getConnectPay() {
+		return connectPay;
+	}
+
+	public void setConnectPay(ConnectPay connectPay) {
+		this.connectPay = connectPay;
 	}
 }

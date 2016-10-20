@@ -1,21 +1,18 @@
 package com.firstdata.payeezy.samples;
 
 import com.firstdata.payeezy.JSONHelper;
-import com.firstdata.payeezy.PayeezyAppConfig;
 import com.firstdata.payeezy.PayeezyClientHelper;
 import com.firstdata.payeezy.models.transaction.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Import;
 
 /**
  * Example to illustrate an authorization and reversal(void) using a credit card
  */
 
 @SpringBootApplication
-@Import(PayeezyAppConfig.class)
 public class CreditCardAuthorizeAndCaptureSample  implements CommandLineRunner{
 
     public static void main(String [] args){
@@ -27,6 +24,10 @@ public class CreditCardAuthorizeAndCaptureSample  implements CommandLineRunner{
 
     @Override
     public void run(String... strings) throws Exception {
+       /* AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.scan("com.firstdata.payeezy");
+        ctx.refresh();
+        PayeezyClientHelper payeezyClientHelper = ctx.getBean(PayeezyClientHelper.class);*/
         TransactionRequest transactionRequest = new TransactionRequest();
         transactionRequest.setAmount("100"); // always set the amouunt in cents
         transactionRequest.setTransactionType(TransactionType.AUTHORIZE.name().toLowerCase());
@@ -36,6 +37,8 @@ public class CreditCardAuthorizeAndCaptureSample  implements CommandLineRunner{
         // set the credit card info
         Card card = new Card().setName("Not Provided").setType("visa").setCvv("123").setExpiryDt("1020").setNumber("4012000033330026");
         transactionRequest.setCard(card);
+        // this picks the properties from the application.properties files
+        // alternatively you can populate the properties and pass it to the constructor
 
         try{
             PayeezyResponse payeezyResponse = payeezyClientHelper.doPrimaryTransaction(transactionRequest);

@@ -1,10 +1,14 @@
 package com.firstdata.payeezy.client;
 
 
+import com.firstdata.payeezy.models.enrollment.BAARequest;
+import com.firstdata.payeezy.models.enrollment.EnrollmentRequest;
 import com.firstdata.payeezy.models.exception.ApplicationRuntimeException;
 import com.firstdata.payeezy.models.transaction.TransactionRequest;
 import com.firstdata.payeezy.models.transaction.TransactionResponse;
 import org.apache.log4j.Logger;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -31,6 +35,8 @@ public class PayeezyClient {
 	
 	private String secondaryTransactionUrl;
 
+	private String baseUrl;
+
 	private PayeezyClient(){}
 
 	public PayeezyClient(PayeezyRequestOptions requestOptions, String transactionsUrl) {
@@ -42,19 +48,14 @@ public class PayeezyClient {
 		this.restTemplate.setInterceptors(interceptors);
 		this.transactionsUrl = transactionsUrl;
 		String url;
-
-		if(!transactionsUrl.startsWith("https://")){
-			int index = transactionsUrl.indexOf("api");
-			if(index != -1){
-				transactionsUrl = transactionsUrl.substring(index);
-			}
-			transactionsUrl = "https://"+transactionsUrl;
-		}
-		if (transactionsUrl.endsWith(APIResourceConstants.PRIMARY_TRANSACTIONS)) {
+		if (this.transactionsUrl.endsWith(APIResourceConstants.PRIMARY_TRANSACTIONS)) {
+			baseUrl = this.transactionsUrl.substring(0,transactionsUrl.indexOf("/v1"));
 			url = transactionsUrl;
 		} else {
+			baseUrl = transactionsUrl;
 			url = transactionsUrl + APIResourceConstants.PRIMARY_TRANSACTIONS;
 		}
+		
 		logger.info("Transaction URL: " + url);
 		//logger.info("Secondary transaction URL: " + this.secondaryTransactionUrl);
 		this.secondaryTransactionUrl = url + "/{id}";
@@ -79,6 +80,51 @@ public class PayeezyClient {
 	public ResponseEntity<TransactionResponse> post(TransactionRequest request, String id){
 		//logger.info("Secondary Transaction: {} {} ", this.secondaryTransactionUrl, jsonHelper.getJSONObject(request) );
 		return this.restTemplate.postForEntity(this.secondaryTransactionUrl, request,TransactionResponse.class, id);
+	}
+
+	/**
+	 * Enrollment call for Connect Pay
+	 * @param enrollmentRequest
+	 * @return
+	 * @throws Exception
+	 */
+	public ResponseEntity<String> enrollInConnectPay(EnrollmentRequest enrollmentRequest) throws Exception {
+		String url = this.baseUrl+APIResourceConstants.CONNECT_PAY_ENROLLMENT_URL;
+		return this.restTemplate.postForEntity(url, enrollmentRequest, String.class);
+	}
+
+	/**
+	 * Validate Micro Deposit
+	 * @param microDeposit
+	 * @return
+	 * @throws Exception
+	 */
+	public ResponseEntity<String> validateMicroDeposit(BAARequest microDeposit) throws Exception {
+		String url = this.baseUrl+ APIResourceConstants.CONNECT_PAY_MICRO_DEPOSIT;
+		return this.restTemplate.postForEntity(url, microDeposit, String.class);
+	}
+
+	/**
+	 * Update Connect Pay Enrollment info
+	 * @param enrollmentRequest
+	 * @return
+	 * @throws Exception
+	 */
+	public ResponseEntity<String> updateConnectPayEnrollment(EnrollmentRequest enrollmentRequest) throws Exception {
+		String url = this.baseUrl+APIResourceConstants.CONNECT_PAY_ENROLLMENT_URL;
+		HttpEntity<EnrollmentRequest> entity = new HttpEntity<>(enrollmentRequest);
+		return this.restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+	}
+
+	/**
+	 * Close Enrollment call for Connect Pay
+	 * @param enrollmentRequest
+	 * @return
+	 * @throws Exception
+	 */
+	public ResponseEntity<String> closeConnectPayEnrollment(EnrollmentRequest enrollmentRequest) throws Exception {
+		String url = this.baseUrl+APIResourceConstants.CONNECT_PAY_CLOSE;
+		return this.restTemplate.postForEntity(url, enrollmentRequest, String.class);
 	}
 
 	public ResponseEntity<String> get(String URL, Map<String, String> queryMap) {

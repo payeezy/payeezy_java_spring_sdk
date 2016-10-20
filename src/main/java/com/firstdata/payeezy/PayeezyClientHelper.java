@@ -2,12 +2,15 @@ package com.firstdata.payeezy;
 
 import com.firstdata.payeezy.client.PayeezyClient;
 import com.firstdata.payeezy.client.PayeezyRequestOptions;
+import com.firstdata.payeezy.models.enrollment.BAARequest;
+import com.firstdata.payeezy.models.enrollment.EnrollmentRequest;
 import com.firstdata.payeezy.models.exception.ApplicationRuntimeException;
 import com.firstdata.payeezy.models.transaction.PayeezyResponse;
 import com.firstdata.payeezy.models.transaction.TransactionRequest;
 import com.firstdata.payeezy.models.transaction.TransactionResponse;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -41,38 +44,28 @@ public class PayeezyClientHelper {
     	System.out.println("VCAP JSON is: " + vcapJson);
     	
         if(vcapJson != null) {
-            String[] serviceNames = new String[]{"firstdata-service", "payeezy-service"};
-        	Map<String, String> map = getMapFromVCAP(vcapJson, serviceNames, 0);
-        	if (map != null && !map.isEmpty()) {
+        	String serviceName = "payeezy-service";
+        	Map<String, String> map = getMapFromVCAP(vcapJson, serviceName, 0);
+        	if (map != null) {
         		PayeezyRequestOptions requestOptions = new PayeezyRequestOptions(map.get("apikey"),map.get("token"), map.get("secret"));
 				String url= map.get("url");
+	        	System.out.println("Info from VCAP_SERVICES for service name: " + serviceName + " is: " + url + " " + requestOptions.toString());
 	            payeezyClient = new PayeezyClient(requestOptions, url);
         	} else {
-                if(env == null){
-                    throw  new ApplicationRuntimeException("Application properties not found");
-                }
-                String url = env.getProperty("url");
-                payeezyClient = new PayeezyClient(getClientOptions(env), url);
+        		throw new ApplicationRuntimeException("Can't find Payeezy service information in VCAP_SERVICES");
         	}
         } else {
             if(env == null){
                 throw  new ApplicationRuntimeException("Application properties not found");
             }
+        	String key = env.getProperty("apikey");
+        	String secret = env.getProperty("pzsecret");
+        	String token = env.getProperty("token");
         	String url = env.getProperty("url");
-        	payeezyClient = new PayeezyClient(getClientOptions(env), url);
+        	String proxyHost = env.getProperty("proxyHost");
+        	String proxyPort = env.getProperty("proxyPort");
+        	payeezyClient = new PayeezyClient(new PayeezyRequestOptions(key, token, secret, proxyHost, proxyPort), url);
         }
-    }
-
-
-    private PayeezyRequestOptions getClientOptions(Environment env){
-        String key = env.getProperty("apikey");
-        String secret = env.getProperty("pzsecret");
-        String token = env.getProperty("token");
-        String url = env.getProperty("url");
-        String proxyHost = env.getProperty("proxyHost");
-        String proxyPort = env.getProperty("proxyPort");
-        return new PayeezyRequestOptions(key, token, secret, proxyHost, proxyPort);
-
     }
 
     /**
@@ -96,27 +89,61 @@ public class PayeezyClientHelper {
     }
 
     /**
+     * Enrollment call for Connect Pay
+     * @param enrollmentRequest
+     * @return
+     * @throws Exception
+     */
+    public PayeezyResponse enrollInConnectPay(EnrollmentRequest enrollmentRequest) throws Exception {
+        ResponseEntity<String> responseEntity = payeezyClient.enrollInConnectPay(enrollmentRequest);
+        return new PayeezyResponse(responseEntity.getStatusCode().value(), responseEntity.getBody());
+    }
+
+    /**
+     * Validate Micro Deposit
+     * @param microDeposit
+     * @return
+     * @throws Exception
+     */
+    public PayeezyResponse validateMicroDeposit(BAARequest microDeposit) throws Exception {
+        ResponseEntity<String> responseEntity = payeezyClient.validateMicroDeposit(microDeposit);
+        return new PayeezyResponse(responseEntity.getStatusCode().value(), responseEntity.getBody());
+    }
+
+    /**
+     * Update Connect Pay Enrollment info
+     * @param enrollmentRequest
+     * @return
+     * @throws Exception
+     */
+    public PayeezyResponse updateConnectPayEnrollment(EnrollmentRequest enrollmentRequest) throws Exception {
+        ResponseEntity<String> responseEntity = payeezyClient.updateConnectPayEnrollment(enrollmentRequest);
+        return new PayeezyResponse(responseEntity.getStatusCode().value(), responseEntity.getBody());
+    }
+
+    /**
+     * Close Enrollment call for Connect Pay
+     * @param enrollmentRequest
+     * @return
+     * @throws Exception
+     */
+    public PayeezyResponse closeConnectPayEnrollment(EnrollmentRequest enrollmentRequest) throws Exception {
+        ResponseEntity<String> responseEntity= payeezyClient.closeConnectPayEnrollment(enrollmentRequest);
+        return new PayeezyResponse(responseEntity.getStatusCode().value(), responseEntity.getBody());
+    }
+
+    /**
      * retrieve app specific values from VCAP_SERVICES
      * @param vcapJson
-     * @param serviceNames
+     * @param serviceName
      * @param index
      * @return
      */
-    private HashMap<String, String> getMapFromVCAP(String vcapJson, String[] serviceNames, int index) {
-        JsonElement contents = null;
-        JsonElement credentials;
-        String service = null;
-        for(String serviceName : serviceNames) {
-            contents = new JsonParser().parse(vcapJson)
-                    .getAsJsonObject().get(serviceName);
-            service= serviceName;
-            if (contents != null) {
-                break;
-            }
-        }
-
+    private HashMap<String, String> getMapFromVCAP(String vcapJson, String serviceName, int index) {
+        JsonElement contents = new JsonParser().parse(vcapJson)
+                       .getAsJsonObject().get(serviceName);
+        JsonElement credentials = null;
         if (contents == null) return null;
-
         if (contents.isJsonArray()) {
         	   JsonArray arr = contents.getAsJsonArray();
         	   if (index > (arr.size() -1)) {
@@ -137,13 +164,23 @@ public class PayeezyClientHelper {
         String secret = credentials.getAsJsonObject().get("secret").getAsString();
         String apikey = credentials.getAsJsonObject().get("apikey").getAsString();
 
+        JsonObject secKeyObj = (JsonObject)credentials.getAsJsonObject().get("js_security_key");
+        String jsSecurityKey = null;
+        
+        if (secKeyObj != null) {        
+        	jsSecurityKey = secKeyObj.getAsString();
+        }
+        
         HashMap<String, String> map = new HashMap<String, String>();
         map.put("url", uri);
         map.put("token", token);
         map.put("secret", secret);
         map.put("apikey", apikey);
-
-        System.out.println("Info from VCAP_SERVICES for service name: " + service + " is: " + uri + " " + map.toString());
+        
+        if (jsSecurityKey != null) {
+        	map.put("jsSecurityKey", jsSecurityKey);
+        }
+        	
         return map;
 	}
 
