@@ -11,9 +11,10 @@ public class APIResourceConstants {
     public static final String PRIMARY_TRANSACTIONS = "/v1/transactions";
     public static final String EXCHANGE_RATE = "/v1/transactions/exchange_rate";
     public static final String SECURE_TOKEN_URL = "/v1/securitytokens";
-    public static final String CONNECT_PAY_ENROLLMENT_URL = "/v1/connectpay/consumer/enrollment";
-    public static final String CONNECT_PAY_CLOSE = "/v1/connectpay/consumer/enrollment/close";
-    public static final String CONNECT_PAY_MICRO_DEPOSIT = "/v1/connectpay/consumer/enrollment/baa";
+    public static final String ACH_ENROLLMENT_URL = "/v1/ach/consumer/enrollment";
+    public static final String ACH_CLOSE = "/v1/ach/consumer/enrollment/close";
+    public static final String ACH_MICRO_DEPOSIT = "/v1/ach/consumer/enrollment/baa";
+
 
 
     public class SecurityConstants{

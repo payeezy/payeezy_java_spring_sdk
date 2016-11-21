@@ -83,13 +83,13 @@ public class PayeezyClient {
 	}
 
 	/**
-	 * Enrollment call for Connect Pay
+	 * Enrollment call for ACH
 	 * @param enrollmentRequest
 	 * @return
 	 * @throws Exception
 	 */
-	public ResponseEntity<String> enrollInConnectPay(EnrollmentRequest enrollmentRequest) throws Exception {
-		String url = this.baseUrl+APIResourceConstants.CONNECT_PAY_ENROLLMENT_URL;
+	public ResponseEntity<String> enrollInACH(EnrollmentRequest enrollmentRequest) throws Exception {
+		String url = this.baseUrl+APIResourceConstants.ACH_ENROLLMENT_URL;
 		return this.restTemplate.postForEntity(url, enrollmentRequest, String.class);
 	}
 
@@ -100,30 +100,30 @@ public class PayeezyClient {
 	 * @throws Exception
 	 */
 	public ResponseEntity<String> validateMicroDeposit(BAARequest microDeposit) throws Exception {
-		String url = this.baseUrl+ APIResourceConstants.CONNECT_PAY_MICRO_DEPOSIT;
+		String url = this.baseUrl+ APIResourceConstants.ACH_MICRO_DEPOSIT;
 		return this.restTemplate.postForEntity(url, microDeposit, String.class);
 	}
 
 	/**
-	 * Update Connect Pay Enrollment info
+	 * Update ACH Enrollment info
 	 * @param enrollmentRequest
 	 * @return
 	 * @throws Exception
 	 */
-	public ResponseEntity<String> updateConnectPayEnrollment(EnrollmentRequest enrollmentRequest) throws Exception {
-		String url = this.baseUrl+APIResourceConstants.CONNECT_PAY_ENROLLMENT_URL;
+	public ResponseEntity<String> updateACHEnrollment(EnrollmentRequest enrollmentRequest) throws Exception {
+		String url = this.baseUrl+APIResourceConstants.ACH_ENROLLMENT_URL;
 		HttpEntity<EnrollmentRequest> entity = new HttpEntity<>(enrollmentRequest);
 		return this.restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
 	}
 
 	/**
-	 * Close Enrollment call for Connect Pay
+	 * Close Enrollment call for ACH
 	 * @param enrollmentRequest
 	 * @return
 	 * @throws Exception
 	 */
-	public ResponseEntity<String> closeConnectPayEnrollment(EnrollmentRequest enrollmentRequest) throws Exception {
-		String url = this.baseUrl+APIResourceConstants.CONNECT_PAY_CLOSE;
+	public ResponseEntity<String> closeACHEnrollment(EnrollmentRequest enrollmentRequest) throws Exception {
+		String url = this.baseUrl+APIResourceConstants.ACH_CLOSE;
 		return this.restTemplate.postForEntity(url, enrollmentRequest, String.class);
 	}
 

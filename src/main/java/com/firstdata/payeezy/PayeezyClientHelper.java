@@ -89,13 +89,13 @@ public class PayeezyClientHelper {
     }
 
     /**
-     * Enrollment call for Connect Pay
+     * Enrollment call for ACH
      * @param enrollmentRequest
      * @return
      * @throws Exception
      */
-    public PayeezyResponse enrollInConnectPay(EnrollmentRequest enrollmentRequest) throws Exception {
-        ResponseEntity<String> responseEntity = payeezyClient.enrollInConnectPay(enrollmentRequest);
+    public PayeezyResponse enrollInACH(EnrollmentRequest enrollmentRequest) throws Exception {
+        ResponseEntity<String> responseEntity = payeezyClient.enrollInACH(enrollmentRequest);
         return new PayeezyResponse(responseEntity.getStatusCode().value(), responseEntity.getBody());
     }
 
@@ -111,24 +111,25 @@ public class PayeezyClientHelper {
     }
 
     /**
-     * Update Connect Pay Enrollment info
+     * Update ACH Enrollment info
      * @param enrollmentRequest
      * @return
      * @throws Exception
      */
-    public PayeezyResponse updateConnectPayEnrollment(EnrollmentRequest enrollmentRequest) throws Exception {
-        ResponseEntity<String> responseEntity = payeezyClient.updateConnectPayEnrollment(enrollmentRequest);
+    public PayeezyResponse updateACHEnrollment(EnrollmentRequest enrollmentRequest) throws Exception {
+        ResponseEntity<String> responseEntity = payeezyClient.updateACHEnrollment(enrollmentRequest);
         return new PayeezyResponse(responseEntity.getStatusCode().value(), responseEntity.getBody());
     }
 
     /**
-     * Close Enrollment call for Connect Pay
+     * Close Enrollment call for ACH
      * @param enrollmentRequest
      * @return
      * @throws Exception
      */
-    public PayeezyResponse closeConnectPayEnrollment(EnrollmentRequest enrollmentRequest) throws Exception {
-        ResponseEntity<String> responseEntity= payeezyClient.closeConnectPayEnrollment(enrollmentRequest);
+    public PayeezyResponse closeACHEnrollment(EnrollmentRequest enrollmentRequest) throws Exception {
+        ResponseEntity<String> responseEntity= payeezyClient.closeACHEnrollment(enrollmentRequest);
+
         return new PayeezyResponse(responseEntity.getStatusCode().value(), responseEntity.getBody());
     }
 
