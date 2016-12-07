@@ -49,7 +49,7 @@ Secondary transactions like void, refund can be performed once a primary transac
 
 Pay With By Bank
 -----------------
-1) Enroll in ConnectPay
+1) Enroll in ACH
 2) Validate
 3) UnEnroll
 4) Update Enrollment
