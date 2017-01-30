@@ -8,7 +8,7 @@ Payeezy Java SDK using Spring Boot is built to make developers life easy to inte
 	```
 		<dependency>
 			<groupId>com.firstdata.payeezy</groupId>
-			<artifactId>payeezy-spring-client</artifactId>
+			<artifactId>payeezy-client-spring</artifactId>
 			<version>1.0</version>
 		</dependency>
 	```
